@@ -1,0 +1,22 @@
+{
+  "name": "example_header",
+  "description": "Plain text example header",
+  "objects": [
+    {
+      "type": "text",
+      "value": "Example Company",
+      "font": "Calibri",
+      "size_pt": 14,
+      "bold": true,
+      "align": "left"
+    },
+    {
+      "type": "text",
+      "value": "Confidential",
+      "font": "Calibri",
+      "size_pt": 10,
+      "bold": false,
+      "align": "right"
+    }
+  ]
+}

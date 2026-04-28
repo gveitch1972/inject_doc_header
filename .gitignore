@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.pyc
+test_docs/
+test_*.docx
+pool/foi_request/
+pool/capgemini/
+pool/brand_you/
+CLAUDE.md
+PLAN.md
+.claude/

@@ -1,0 +1,14 @@
+{
+  "name": "acme_test",
+  "description": "",
+  "objects": [
+    {
+      "type": "text",
+      "value": "ACME Corp | Confidential",
+      "font": null,
+      "size_pt": 12,
+      "bold": true,
+      "align": "left"
+    }
+  ]
+}
