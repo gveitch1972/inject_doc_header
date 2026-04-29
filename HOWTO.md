@@ -4,12 +4,14 @@
 
 Takes a Word document and stamps a header from a pool onto it. Headers can be text or images (company logos etc). Output is always .docx.
 
+Included for testing: `example_hdrs/` (13 generic letterhead `.doc` files) and `sample_target.docx` (neutral target document).
+
 ---
 
 ## 1. Install dependencies
 
 ```bash
-pip install python-docx lxml
+pip install -r requirements.txt
 ```
 
 For `.doc`, `.odt`, `.rtf` inputs (not needed for `.docx`):
