@@ -23,7 +23,7 @@ CT_IMAGES = {
 
 
 def inject(docx_path: Path, header_name: str, out_path: Path, replace: bool = False,
-           font: str = None, size_pt: int = None):
+           font: str = None, size_pt: int = None, separator: bool = True):
     pool_entry = POOL_DIR / header_name
     if not pool_entry.exists():
         raise FileNotFoundError(f"Pool entry not found: pool/{header_name}/")
@@ -59,7 +59,15 @@ def inject(docx_path: Path, header_name: str, out_path: Path, replace: bool = Fa
         if replace:
             _replace_header(zip_contents, header_key, pool_header_xml, pool_rels_xml, pool_images, header_name)
         else:
-            _prepend_header(zip_contents, header_key, pool_header_xml, pool_rels_xml, pool_images, header_name)
+            if pool_images:
+                print("Warning: pool header contains images and target doc already has a header.")
+                if separator:
+                    print("         Adding separator line between injected and existing header.")
+                    print("         Use --no-separator to skip (may produce inconsistent results).")
+                else:
+                    print("         --no-separator set: headers merged directly. Results may be inconsistent.")
+            _prepend_header(zip_contents, header_key, pool_header_xml, pool_rels_xml, pool_images,
+                            header_name, separator=separator)
 
     _write_docx(zip_contents, compress_types, out_path)
     print(f"Saved: {out_path}")
@@ -181,15 +189,32 @@ def _replace_header(zip_contents, header_key, pool_header_xml, pool_rels_xml, po
     zip_contents[header_key] = _rewrite_rids(pool_header_xml, rid_map)
 
 
-def _prepend_header(zip_contents, header_key, pool_header_xml, pool_rels_xml, pool_images, header_name):
+def _separator_paragraph() -> etree._Element:
+    p = etree.Element(f'{{{W}}}p')
+    pPr = etree.SubElement(p, f'{{{W}}}pPr')
+    pBdr = etree.SubElement(pPr, f'{{{W}}}pBdr')
+    bottom = etree.SubElement(pBdr, f'{{{W}}}bottom')
+    bottom.set(f'{{{W}}}val', 'single')
+    bottom.set(f'{{{W}}}sz', '6')
+    bottom.set(f'{{{W}}}space', '1')
+    bottom.set(f'{{{W}}}color', 'auto')
+    return p
+
+
+def _prepend_header(zip_contents, header_key, pool_header_xml, pool_rels_xml, pool_images,
+                    header_name, separator: bool = True):
     rid_map = _embed_pool_images(zip_contents, pool_images, pool_rels_xml, header_key, header_name)
     pool_xml = _rewrite_rids(pool_header_xml, rid_map)
 
     pool_root = etree.fromstring(pool_xml)
     existing_root = etree.fromstring(zip_contents[header_key])
 
-    for i, child in enumerate(list(pool_root)):
+    pool_children = list(pool_root)
+    for i, child in enumerate(pool_children):
         existing_root.insert(i, deepcopy(child))
+
+    if separator:
+        existing_root.insert(len(pool_children), _separator_paragraph())
 
     zip_contents[header_key] = etree.tostring(
         existing_root, xml_declaration=True, encoding='UTF-8', standalone=True

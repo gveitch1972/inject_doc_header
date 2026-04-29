@@ -29,6 +29,8 @@ def main():
     p.add_argument('--replace', action='store_true', help='Replace existing header (default: prepend above it)')
     p.add_argument('--font', help='Override font for all text in header (e.g. "Arial")')
     p.add_argument('--size', type=int, help='Override font size in points for all text in header (e.g. 11)')
+    p.add_argument('--no-separator', action='store_true',
+                   help='Skip separator line between prepended and existing header (may produce inconsistent results)')
     p.add_argument('--list', action='store_true', help='List available pool headers')
     args = p.parse_args()
 
@@ -50,7 +52,7 @@ def main():
     out_path = Path(args.out) if args.out else input_path.with_name(input_path.stem + '_injected.docx')
 
     inject(docx_path, args.header, out_path, replace=args.replace,
-           font=args.font, size_pt=args.size)
+           font=args.font, size_pt=args.size, separator=not args.no_separator)
 
 
 if __name__ == '__main__':
